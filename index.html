@@ -464,6 +464,69 @@
   }
 
 
+
+  /* Language switcher */
+  .lang-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 24px 0;
+  }
+  .lang-label {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 500;
+    margin-right: 2px;
+  }
+  .lang-btn {
+    padding: 5px 12px;
+    border: 1.5px solid var(--gray-light);
+    background: white;
+    border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--gray);
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .lang-btn.active {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: white;
+  }
+  .lang-btn:hover:not(.active) {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  /* Info bullets */
+  .benefit-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+  }
+  .benefit-list li {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--gray-light);
+    color: #444;
+  }
+  .benefit-list li:last-child { border-bottom: none; }
+  .benefit-bullet {
+    color: var(--blue);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
   /* Google Places autocomplete dropdown styling */
   .pac-container {
     font-family: 'Barlow', sans-serif;
@@ -571,7 +634,7 @@
     .distance-badge { grid-column: 2; }
   }
 </style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDlBVOu_jLmSNiDlgkBAxj_oagnqiWT-J8&libraries=places&callback=initAutocomplete" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDlBVOu_jLmSNiDlgkBAxj_oagnqiWT-J8&libraries=places" defer></script>
 </head>
 <body>
 
@@ -602,6 +665,13 @@
 </header>
 
 <main>
+  <div class="lang-bar">
+    <span class="lang-label">🌐</span>
+    <button class="lang-btn active" onclick="setLang('en', this)">English</button>
+    <button class="lang-btn" onclick="setLang('tl', this)">Taglish</button>
+    <button class="lang-btn" onclick="setLang('bi', this)">Bisaya</button>
+  </div>
+
   <div class="search-card">
     <div class="update-notice">📋 List of Accredited YAKAP Clinics for CY 2026 — Updated as of January 31, 2026</div>
     <label class="search-label">Enter your address or location</label>
@@ -629,50 +699,69 @@
   </div>
 
   <div class="info-section">
-    <h2>What is YAKAP?</h2>
-    <p>
-      <strong>YAKAP</strong> stands for <strong>Yaman ng Kalusugan Program</strong> — PhilHealth's national primary care benefit package, launched in July 2025 as an upgraded replacement of the former Konsulta program. It gives all PhilHealth members and their qualified dependents free access to primary care services at accredited clinics nationwide.
-    </p>
-    <p>
-      YAKAP bundles four key benefits: free consultations (KONSULTA), access to 75 essential medicines worth up to ₱20,000 per year (GAMOT), 13 outpatient laboratory tests (LABORATORYO), and cancer screenings (SCREEN). The goal is to shift the focus from treating illness to preventing it — catching health problems early before they require hospitalization.
-    </p>
-    <p>
-      To use YAKAP, a PhilHealth member picks an accredited clinic, completes a <em>First Patient Encounter (FPE)</em> with a doctor, and gets enrolled. Registration can be done via the eGov PH app, the PhilHealth member portal, or directly at a YAKAP clinic.
-    </p>
+    <!-- ENGLISH -->
+    <div class="lang-content" id="lang-en">
+      <h2>What is YAKAP?</h2>
+      <p><strong>YAKAP</strong> stands for <strong>Yaman ng Kalusugan Program</strong> — PhilHealth's national primary care benefit package, launched in July 2025 as the upgraded replacement of the Konsulta program. All PhilHealth members and their qualified dependents get free access to primary care services at accredited clinics nationwide.</p>
+      <p>YAKAP covers four key benefits:</p>
+      <ul class="benefit-list">
+        <li><span class="benefit-bullet">▸</span><span><strong>KONSULTA</strong> — Free consultations with a doctor at your chosen YAKAP clinic</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>GAMOT</strong> — Access to 75 essential medicines worth up to ₱20,000 per year</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>LABORATORYO</strong> — 13 outpatient laboratory tests including CBC, lipid profile, and fasting blood sugar</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>SCREEN</strong> — Cancer screenings including mammogram, colonoscopy, liver ultrasound, and CT scan</span></li>
+      </ul>
+      <p style="margin-top:12px">To enroll, pick an accredited clinic below, visit for your <em>First Patient Encounter (FPE)</em>, and you're in. You can also register via the eGov PH app or the PhilHealth member portal.</p>
+      <div class="divider"></div>
+      <h2>Who benefits most?</h2>
+      <div class="info-grid">
+        <div class="info-card"><span class="info-card-icon">💊</span><div class="info-card-title">PhilHealth Members</div><div class="info-card-body">All members and their declared dependents — no out-of-pocket cost for covered services.</div></div>
+        <div class="info-card"><span class="info-card-icon">🤱</span><div class="info-card-title">Mothers & Newborns</div><div class="info-card-body">Prenatal check-ups, postnatal care, and newborn health monitoring.</div></div>
+        <div class="info-card"><span class="info-card-icon">👴</span><div class="info-card-title">Seniors & Chronic Patients</div><div class="info-card-body">Monitoring for hypertension, diabetes, and free maintenance medicines under GAMOT.</div></div>
+        <div class="info-card"><span class="info-card-icon">🏘️</span><div class="info-card-title">Rural Communities</div><div class="info-card-body">Many YAKAP centers are RHUs — the primary healthcare point in remote areas.</div></div>
+      </div>
+    </div>
 
-    <div class="divider"></div>
+    <!-- TAGLISH -->
+    <div class="lang-content" id="lang-tl" style="display:none">
+      <h2>Ano ang YAKAP?</h2>
+      <p><strong>YAKAP</strong> o <strong>Yaman ng Kalusugan Program</strong> — ito ang pangunahing health benefit package ng PhilHealth, sinimulan noong Hulyo 2025 bilang kapalit ng dating Konsulta program. Lahat ng miyembro ng PhilHealth at kanilang mga dependyente ay may libreng access sa primary care services sa mga accredited clinic sa buong bansa.</p>
+      <p>Apat na benepisyo ang kasama sa YAKAP:</p>
+      <ul class="benefit-list">
+        <li><span class="benefit-bullet">▸</span><span><strong>KONSULTA</strong> — Libreng konsultasyon sa doktor sa inyong piniling YAKAP clinic</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>GAMOT</strong> — Hanggang ₱20,000 na halaga ng gamot bawat taon mula sa 75 essential medicines</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>LABORATORYO</strong> — 13 outpatient lab tests kasama na ang CBC, lipid profile, at blood sugar</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>SCREEN</strong> — Cancer screenings tulad ng mammogram, colonoscopy, liver ultrasound, at CT scan</span></li>
+      </ul>
+      <p style="margin-top:12px">Para mag-enroll, pumili ng clinic sa ibaba, bumisita para sa inyong <em>First Patient Encounter (FPE)</em>, tapos naka-enroll na kayo. Pwede rin mag-register sa eGov PH app o sa PhilHealth member portal.</p>
+      <div class="divider"></div>
+      <h2>Sino ang pinaka-makikinabang?</h2>
+      <div class="info-grid">
+        <div class="info-card"><span class="info-card-icon">💊</span><div class="info-card-title">Mga Miyembro ng PhilHealth</div><div class="info-card-body">Lahat ng miyembro at kanilang mga dependyente — walang babayaran para sa covered services.</div></div>
+        <div class="info-card"><span class="info-card-icon">🤱</span><div class="info-card-title">Mga Ina at Sanggol</div><div class="info-card-body">Prenatal check-ups, postnatal care, at health monitoring para sa bagong silang.</div></div>
+        <div class="info-card"><span class="info-card-icon">👴</span><div class="info-card-title">Matatanda at May Sakit</div><div class="info-card-body">Monitoring ng hypertension, diabetes, at libreng maintenance medicines sa ilalim ng GAMOT.</div></div>
+        <div class="info-card"><span class="info-card-icon">🏘️</span><div class="info-card-title">Mga Komunidad sa Probinsya</div><div class="info-card-body">Maraming YAKAP centers ay RHU — ang pangunahing health facility sa malalayong lugar.</div></div>
+      </div>
+    </div>
 
-    <h2>Who benefits most?</h2>
-    <div class="info-grid">
-      <div class="info-card">
-        <span class="info-card-icon">💊</span>
-        <div class="info-card-title">PhilHealth Members</div>
-        <div class="info-card-body">All members and their declared dependents are eligible — covering the vast majority of Filipinos. No out-of-pocket cost for covered services.</div>
-      </div>
-      <div class="info-card">
-        <span class="info-card-icon">🤱</span>
-        <div class="info-card-title">Mothers & Newborns</div>
-        <div class="info-card-body">Prenatal check-ups, postnatal care, and newborn health monitoring are core services at YAKAP-accredited health centers.</div>
-      </div>
-      <div class="info-card">
-        <span class="info-card-icon">👴</span>
-        <div class="info-card-title">Seniors & Chronic Patients</div>
-        <div class="info-card-body">Regular monitoring for hypertension, diabetes, and other conditions, plus free maintenance medicines under the GAMOT program.</div>
-      </div>
-      <div class="info-card">
-        <span class="info-card-icon">🔬</span>
-        <div class="info-card-title">Those Needing Screening</div>
-        <div class="info-card-body">Cancer screenings (mammogram, colonoscopy, liver ultrasound, CT scan) and lab tests like CBC, lipid profile, and fasting blood sugar are covered.</div>
-      </div>
-      <div class="info-card">
-        <span class="info-card-icon">🏘️</span>
-        <div class="info-card-title">Rural Communities</div>
-        <div class="info-card-body">Many YAKAP centers are Rural Health Units (RHUs) serving as the primary — and often only — healthcare access point in remote areas.</div>
-      </div>
-      <div class="info-card">
-        <span class="info-card-icon">👷</span>
-        <div class="info-card-title">Workers & Informal Sector</div>
-        <div class="info-card-body">YAKAP was specifically designed to make essential care accessible for workers and underserved communities who cannot easily afford hospital visits.</div>
+    <!-- BISAYA -->
+    <div class="lang-content" id="lang-bi" style="display:none">
+      <h2>Unsa ang YAKAP?</h2>
+      <p><strong>YAKAP</strong> o <strong>Yaman ng Kalusugan Program</strong> — kini ang primary health benefit package sa PhilHealth, gisugdan niadtong Hulyo 2025 isip kapalit sa kanhi Konsulta program. Ang tanan nga miyembro sa PhilHealth ug ilang mga dependyente adunay libre nga access sa primary care services sa mga accredited nga klinika sa tibuok nasod.</p>
+      <p>Upat ka benepisyo ang sakop sa YAKAP:</p>
+      <ul class="benefit-list">
+        <li><span class="benefit-bullet">▸</span><span><strong>KONSULTA</strong> — Libre nga konsultasyon sa doktor sa imong gipiling YAKAP clinic</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>GAMOT</strong> — Hangtod ₱20,000 nga kantidad sa tambal matag tuig gikan sa 75 essential medicines</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>LABORATORYO</strong> — 13 outpatient lab tests lakip na ang CBC, lipid profile, ug blood sugar</span></li>
+        <li><span class="benefit-bullet">▸</span><span><strong>SCREEN</strong> — Cancer screenings sama sa mammogram, colonoscopy, liver ultrasound, ug CT scan</span></li>
+      </ul>
+      <p style="margin-top:12px">Aron mag-enroll, pilia ang usa ka clinic sa ubos, moadto para sa imong <em>First Patient Encounter (FPE)</em>, ug naka-enroll na. Pwede usab mag-register pinaagi sa eGov PH app o sa PhilHealth member portal.</p>
+      <div class="divider"></div>
+      <h2>Kinsa ang pinaka-makabenepisyo?</h2>
+      <div class="info-grid">
+        <div class="info-card"><span class="info-card-icon">💊</span><div class="info-card-title">Mga Miyembro sa PhilHealth</div><div class="info-card-body">Tanan nga miyembro ug ilang mga dependyente — walay bayad para sa covered services.</div></div>
+        <div class="info-card"><span class="info-card-icon">🤱</span><div class="info-card-title">Mga Inahan ug Bag-ong Natawo</div><div class="info-card-body">Prenatal check-ups, postnatal care, ug health monitoring para sa bag-ong natawo.</div></div>
+        <div class="info-card"><span class="info-card-icon">👴</span><div class="info-card-title">Mga Tigulang ug May Sakit</div><div class="info-card-body">Pag-monitor sa hypertension, diabetes, ug libre nga maintenance medicines ubos sa GAMOT.</div></div>
+        <div class="info-card"><span class="info-card-icon">🏘️</span><div class="info-card-title">Mga Komunidad sa Probinsya</div><div class="info-card-body">Daghan sa YAKAP centers mga RHU — ang nag-unang health facility sa layong mga lugar.</div></div>
       </div>
     </div>
   </div>
@@ -1061,6 +1150,24 @@ function initAutocomplete() {
 }
 
 document.getElementById('total-count').textContent = CENTERS.length.toLocaleString();
+
+function setLang(lang, btn) {
+  document.querySelectorAll('.lang-content').forEach(el => el.style.display = 'none');
+  document.getElementById('lang-' + lang).style.display = 'block';
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+window.addEventListener('load', () => {
+  if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+    initAutocomplete();
+  } else {
+    // Retry once after a short delay if Maps hasn't loaded yet
+    setTimeout(() => {
+      if (typeof google !== 'undefined') initAutocomplete();
+    }, 1000);
+  }
+});
 </script>
 
 </body>
