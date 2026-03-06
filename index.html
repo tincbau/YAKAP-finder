@@ -377,12 +377,27 @@
     flex-shrink: 0;
   }
 
+  .distance-badge {
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 72px;
+  }
+
   .distance-km {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: var(--red);
     line-height: 1;
+  }
+
+  .distance-travel {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+    margin-top: 3px;
+    line-height: 1.2;
   }
 
   .distance-label {
@@ -983,8 +998,63 @@ function rankBadge(i) {
 }
 
 function mapsUrl(name, province) {
-  const q = encodeURIComponent(`${name}, ${province !== 'Unknown' ? province + ', ' : ''}Philippines`);
-  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  const dest = encodeURIComponent(`${name}, ${province !== 'Unknown' ? province + ', ' : ''}Philippines`);
+  return `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+}
+
+
+// Cache travel times so repeat searches are instant
+const travelCache = {};
+
+async function getTravelTimes(originLat, originLon, destinations) {
+  // Uses Routes API (computeRouteMatrix) for up to 10 destinations at once
+  const KEY = 'AIzaSyDlBVOu_jLmSNiDlgkBAxj_oagnqiWT-J8';
+  const url = `https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix?key=${KEY}`;
+
+  const origins = [{
+    waypoint: { location: { latLng: { latitude: originLat, longitude: originLon } } }
+  }];
+  const dests = destinations.map(d => ({
+    waypoint: { location: { latLng: { latitude: d.lat, longitude: d.lon } } }
+  }));
+
+  const body = {
+    origins,
+    destinations: dests,
+    travelMode: 'DRIVE',
+    routingPreference: 'TRAFFIC_AWARE_OPTIMAL',
+  };
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters,status'
+      },
+      body: JSON.stringify(body)
+    });
+    const rows = await res.json();
+    if (!Array.isArray(rows)) return null;
+    return rows;
+  } catch(e) {
+    return null;
+  }
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return null;
+  const mins = Math.round(seconds / 60);
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function formatRoadDist(meters) {
+  if (!meters) return null;
+  const km = meters / 1000;
+  return km < 10 ? km.toFixed(1) + ' km' : Math.round(km) + ' km';
 }
 
 // Cache of geocoded centers so repeat searches are instant
@@ -1066,6 +1136,27 @@ async function runSearch(geo) {
   candidates.sort((a, b) => a.dist - b.dist);
   const top = candidates.slice(0, topN);
 
+  // Step 3: get real driving times for the final top results
+  showStatus('Getting driving times…');
+  const travelData = await getTravelTimes(geo.lat, geo.lon, top);
+
+  // Attach travel info to each result
+  if (travelData) {
+    travelData.forEach(row => {
+      if (row.status && row.status.code && row.status.code !== 0) return;
+      const c = top[row.destinationIndex];
+      if (c) {
+        c.travelTime = formatDuration(parseInt(row.duration));
+        c.travelDist = formatRoadDist(row.distanceMeters);
+      }
+    });
+    // Re-sort by travel time if available
+    top.sort((a, b) => {
+      if (a.travelTime && b.travelTime) return (parseInt(a.travelTime) || 999) - (parseInt(b.travelTime) || 999);
+      return a.dist - b.dist;
+    });
+  }
+
   hideStatus();
 
   // Render
@@ -1073,7 +1164,7 @@ async function runSearch(geo) {
   document.getElementById('results-title').textContent = `${topN} Nearest YAKAP Centers`;
 
   const shortAddr = geo.display.split(',').slice(0, 3).join(', ');
-  document.getElementById('results-meta').textContent = `sorted by distance`;
+  document.getElementById('results-meta').textContent = travelData ? 'sorted by driving time' : 'sorted by distance';
   const locationNote = geo.interpreted
     ? `Your location: ${shortAddr} (searched as: "${geo.interpreted}")`
     : `Your location: ${shortAddr}`;
@@ -1086,10 +1177,15 @@ async function runSearch(geo) {
     const prov = c.p !== 'Unknown' ? c.p : '';
     const reg = formatRegion(c.r);
     const distStr = c.dist < 10 ? c.dist.toFixed(1) : Math.round(c.dist).toString();
-
     const muni = c.m ? titleCase(c.m) : '';
     const phoneDisplay = c.t ? c.t : '';
     const locationLine = [muni, prov ? titleCase(prov) : ''].filter(Boolean).join(', ');
+
+    const travelBadge = c.travelTime
+      ? `<div class="distance-travel">🚗 ${c.travelTime}</div>
+         <div class="distance-label">${c.travelDist || ''}</div>`
+      : `<div class="distance-km">${distStr}</div>
+         <div class="distance-label">km away</div>`;
 
     list.innerHTML += `
       <div class="center-card">
@@ -1109,13 +1205,12 @@ async function runSearch(geo) {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
               </svg>
-              Search on Maps
+              Get Directions
             </a>
           </div>
         </div>
         <div class="distance-badge">
-          <div class="distance-km">${distStr}</div>
-          <div class="distance-label">km away</div>
+          ${travelBadge}
         </div>
       </div>
     `;
